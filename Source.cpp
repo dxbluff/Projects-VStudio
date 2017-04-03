@@ -87,7 +87,7 @@ ostream& operator<<(ostream& os, point& a)
 ofstream& operator<<(ofstream& ofs, point& a)
 {
 	if (ofs.is_open())
-		ofs << a.get_x() << " " << a.get_y() << " ";
+		ofs << a.get_x() << " " << a.get_y();
 	return ofs;
 }
 
@@ -229,20 +229,21 @@ void distribution(string a, int kf) //a-file name, kf-quantity of files!
 	ifstream fi; //open the source file
 	fi.open(a);
 
-	point tmp, tmp1;	
+	//point tmp, tmp1;	
+	int tmp=0, tmp1=0;
 	int i = 0;
 	while (!fi.eof())
 	{
 		tmp1 = tmp;
-		fi >> tmp;
-		if (tmp >= tmp1)
+		fi >> tmp;		if (tmp >= tmp1)
 		{
-			f[i] << tmp << endl;;
+			f[i] << tmp << " ";
 		}
 		else
 		{
+			f[i] << endl;
 			i = (i + 1) % kf; //change file
-			f[i] << tmp << endl;;
+			f[i] << tmp << " ";
 		}
 	}
 	fi.close();
@@ -251,9 +252,23 @@ void distribution(string a, int kf) //a-file name, kf-quantity of files!
 	delete[] f;
 }
 
+/*void merger(string a, int kf)
+{
+	ifstream *f = new ifstream[kf]; //massiv of files
+	for (int i; i < kf; i++)
+		f[i].open("f_" + to_string(i) + "txt");
+
+	ofstream fi; //Source file
+	fi.open(a);
+
+	int i = 0;
+	char tmp;
+	while (i < kf && (!f[i].eof() && tmp!='\n'))
+
+}*/
 
 int main()
 {
-	distribution("1.txt", 5);	
+	distribution("2.txt", 2);	
 	cout << endl << endl;
 }
