@@ -11,7 +11,7 @@ private:
 	double x;
 	double y;
 public:
-	static double xc;   // (xc, yc) центр массы;
+	static double xc;   // (xc, yc) centre of mas;
 	static double yc;
 	point() : x(0), y(0) {};
 	point(double _x, double _y);
@@ -26,7 +26,7 @@ public:
 	point operator=(point a);
 };
 
-//____________________________________________________*Методы класса*____________________________________________________________
+//____________________________________________________*Class methods*____________________________________________________________
 
 point::point(double _x, double _y)
 {
@@ -235,15 +235,16 @@ void distribution(string a, int kf) //a-file name, kf-quantity of files!
 	while (!fi.eof())
 	{
 		tmp1 = tmp;
-		fi >> tmp;		if (tmp >= tmp1)
+		fi >> tmp;		
+		if (tmp >= tmp1)
 		{
-			f[i] << tmp << " ";
+			f[i] << " " << tmp;
 		}
 		else
 		{
-			f[i] << endl;
+			f[i] << " -1";
 			i = (i + 1) % kf; //change file
-			f[i] << tmp << " ";
+			f[i] << " "<< tmp;
 		}
 	}
 	fi.close();
@@ -252,23 +253,95 @@ void distribution(string a, int kf) //a-file name, kf-quantity of files!
 	delete[] f;
 }
 
-/*void merger(string a, int kf)
+int check(ifstream *f, int kf)  //check for end of any file, if one of files will end, return 0
 {
-	ifstream *f = new ifstream[kf]; //massiv of files
-	for (int i; i < kf; i++)
-		f[i].open("f_" + to_string(i) + "txt");
+	int tmp = 0;
+	for (int i = 0; i < kf; i++)
+		if (!f[i].eof()) tmp++;
+	return tmp;
+}
+
+int get_elem(ifstream &f)
+{
+	int tmp=-1;
+	if (!f.eof())
+		f >> tmp;
+	return tmp;
+}
+
+int FindIndexOfMin(int *elements, int kf)
+{
+	int index=-1;
+	for (int i = 0; i < kf; i++)
+	{
+		if (elements[i] != -1)
+		{
+			index = i;
+			break;
+		}
+	}
+	if (index == -1) return -1;
+	int min=elements[index];
+	for (int i= index; i < kf;i++)
+		if (elements[i] < min && elements[i]!=-1)
+		{
+			min = elements[i];
+			index = i;
+		}
+	return index;
+}
+
+int merger(string a, int kf)
+{
+	ifstream *f = new ifstream[kf]; //massiv of files (for merger)
+	for (int i=0; i < kf; i++)
+		f[i].open("f_" + to_string(i) + ".txt");
 
 	ofstream fi; //Source file
 	fi.open(a);
 
-	int i = 0;
-	char tmp;
-	while (i < kf && (!f[i].eof() && tmp!='\n'))
+	int *elements=new int[kf];  //for keeping elements from files
 
-}*/
+	int ks = 0;
+	
+	while (check(f,kf))
+	{
+		for (int i = 0; i < kf; i++)
+			elements[i] = get_elem(f[i]);
+		int min = FindIndexOfMin(elements, kf);
+		while (min!=-1)
+		{
+			fi << " " << elements[min];
+			elements[min] = get_elem(f[min]);
+			min = FindIndexOfMin(elements, kf);
+		}
+		fi << " -1";
+		ks++;
+	}
+	
+	for (int i = 0; i < kf; i++)
+		f[i].close();
+	delete[] f;
+
+
+	return ks;
+}
+
+
+void sort(string a, int kf)
+{
+	int ks = 0;
+	while (ks != 1)
+	{
+		distribution(a, kf);
+		ks = merger(a, kf);
+	}
+}
+
 
 int main()
 {
-	distribution("2.txt", 2);	
+	sort("2.txt", 2);
+	
 	cout << endl << endl;
 }
