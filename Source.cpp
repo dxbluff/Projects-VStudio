@@ -209,22 +209,23 @@ point find_centre_of_mass(string f)   //WORKING CODE. Function is working.
 		return p;
 }
 
-void gen_file()
+void gen_file(std::string filename)
 {
-	ofstream f;
-	f.open("f.txt");
-
+	std::ofstream f;
+	f.open(filename);
 	srand(time(NULL));
-
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i<1000; i++)
 	{
+		int tmp = rand() % 100;
+		double x, y;
+		int M = 100, n = 100;
+		x = rand() % M + rand() % n / (double)n;
+		y = rand() % M + rand() % n / (double)n;
+		point temp(x,y);
 		f << " ";
-		f << (rand() % 100) / 1.3;
+		f << temp;
 	}
-	
-
 	f.close();
-
 }
 
 void distribution(string a, int kf) //a-file name, kf-quantity of files!
@@ -239,13 +240,18 @@ void distribution(string a, int kf) //a-file name, kf-quantity of files!
 	ifstream fi; //open the source file
 	fi.open(a);
 
-	point tmp, tmp1;	
+	point tmp(point::xc, point::yc), tmp1;
 	//int tmp=0, tmp1=0;
 	int i = 0;
 	while (!fi.eof())
 	{
 		tmp1 = tmp;
-		fi >> tmp;		
+		fi >> tmp;
+		
+		/*if (tmp.get_x() == -1 && tmp.get_y() == -1)
+		{
+
+		}*/
 		if (tmp >= tmp1)
 		{
 			f[i] << " ";
@@ -259,7 +265,7 @@ void distribution(string a, int kf) //a-file name, kf-quantity of files!
 			f[i] << tmp;
 		}
 	}
-	//f[i] << " -1 -1";
+	f[i] << " -1 -1";
 	fi.close();
 	for (int i = 0; i < kf; i++)
 		f[i].close();
@@ -276,14 +282,9 @@ int check(ifstream *f, int kf)  //check for end of any file, if one of files wil
 
 point get_elem(ifstream &f)
 {
-	point tmp;
+	point tmp(-1,-1);
 	if (!f.eof())
 		f >> tmp;
-	else
-	{
-		tmp.set_x(-1);
-		tmp.set_y(-1);
-	}
 	return tmp;
 }
 
@@ -353,11 +354,13 @@ void sort(string a, int kf)
 	point::xc = centre.get_x();
 	point::yc = centre.get_y();
 
-	int ks = 0;
-	
-	while (ks != 1)
+	cout << "centre of mass: (" << point::xc << "," << point::yc << ")" << endl;
+
+	int ks = 10;
+	while (ks > 1)
 	{
 		distribution(a, kf);
+		cout << "distributed" << endl;
 		ks = merger(a, kf);
 	}
 }
@@ -365,19 +368,8 @@ void sort(string a, int kf)
 
 int main()
 {
-
-	gen_file();
-	//distribution("f.txt", 2);
-	
-	
-	//merger("4.txt", 2);
+	gen_file("f.txt");
 	sort("f.txt", 2);
 	
-	/*
-	distribution("3.txt", 2);
-	merger("4.txt", 2);
-	distribution("4.txt", 2);
-	merger("4.txt", 2);
-	*/
 	cout << endl << endl;
 }
