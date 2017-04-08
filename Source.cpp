@@ -24,6 +24,7 @@ public:
 	bool operator>=(point a);
 	bool operator < (point a);
 	point operator=(point a);
+	bool operator!=(point a);
 };
 
 //____________________________________________________*Class methods*____________________________________________________________
@@ -131,6 +132,11 @@ point point::operator=(point a)
 	return *this;
 }
 
+bool point::operator!=(point a)
+{
+	return (this->x != a.get_x() || this->y != a.get_y());
+}
+
 double point::xc;
 double point::yc;
 
@@ -210,8 +216,12 @@ void gen_file()
 
 	srand(time(NULL));
 
-	for (int i = 0; i < 100; i++)
-	f << (rand()%100)/1.3 << " ";
+	for (int i = 0; i < 10; i++)
+	{
+		f << " ";
+		f << (rand() % 100) / 1.3;
+	}
+	
 
 	f.close();
 
@@ -229,8 +239,8 @@ void distribution(string a, int kf) //a-file name, kf-quantity of files!
 	ifstream fi; //open the source file
 	fi.open(a);
 
-	//point tmp, tmp1;	
-	int tmp=0, tmp1=0;
+	point tmp, tmp1;	
+	//int tmp=0, tmp1=0;
 	int i = 0;
 	while (!fi.eof())
 	{
@@ -238,15 +248,18 @@ void distribution(string a, int kf) //a-file name, kf-quantity of files!
 		fi >> tmp;		
 		if (tmp >= tmp1)
 		{
-			f[i] << " " << tmp;
+			f[i] << " ";
+			f[i] << tmp;
 		}
 		else
 		{
-			f[i] << " -1";
+			f[i] << " -1 -1";
 			i = (i + 1) % kf; //change file
-			f[i] << " "<< tmp;
+			f[i] << " ";
+			f[i] << tmp;
 		}
 	}
+	//f[i] << " -1 -1";
 	fi.close();
 	for (int i = 0; i < kf; i++)
 		f[i].close();
@@ -261,29 +274,35 @@ int check(ifstream *f, int kf)  //check for end of any file, if one of files wil
 	return tmp;
 }
 
-int get_elem(ifstream &f)
+point get_elem(ifstream &f)
 {
-	int tmp=-1;
+	point tmp;
 	if (!f.eof())
 		f >> tmp;
+	else
+	{
+		tmp.set_x(-1);
+		tmp.set_y(-1);
+	}
 	return tmp;
 }
 
-int FindIndexOfMin(int *elements, int kf)
+int FindIndexOfMin(point *elements, int kf)
 {
 	int index=-1;
+	point tmp(-1, -1);
 	for (int i = 0; i < kf; i++)
 	{
-		if (elements[i] != -1)
+		if (elements[i] != tmp)
 		{
 			index = i;
 			break;
 		}
 	}
 	if (index == -1) return -1;
-	int min=elements[index];
+	point min=elements[index];
 	for (int i= index; i < kf;i++)
-		if (elements[i] < min && elements[i]!=-1)
+		if (elements[i] < min && elements[i]!=tmp)
 		{
 			min = elements[i];
 			index = i;
@@ -300,7 +319,7 @@ int merger(string a, int kf)
 	ofstream fi; //Source file
 	fi.open(a);
 
-	int *elements=new int[kf];  //for keeping elements from files
+	point *elements=new point[kf];  //for keeping elements from files
 
 	int ks = 0;
 	
@@ -311,11 +330,11 @@ int merger(string a, int kf)
 		int min = FindIndexOfMin(elements, kf);
 		while (min!=-1)
 		{
-			fi << " " << elements[min];
+			fi << " ";
+			fi << elements[min];
 			elements[min] = get_elem(f[min]);
 			min = FindIndexOfMin(elements, kf);
 		}
-		fi << " -1";
 		ks++;
 	}
 	
@@ -327,10 +346,15 @@ int merger(string a, int kf)
 	return ks;
 }
 
-
 void sort(string a, int kf)
 {
+	point centre;
+	centre = find_centre_of_mass(a);
+	point::xc = centre.get_x();
+	point::yc = centre.get_y();
+
 	int ks = 0;
+	
 	while (ks != 1)
 	{
 		distribution(a, kf);
@@ -341,7 +365,19 @@ void sort(string a, int kf)
 
 int main()
 {
-	sort("2.txt", 2);
+
+	gen_file();
+	//distribution("f.txt", 2);
 	
+	
+	//merger("4.txt", 2);
+	sort("f.txt", 2);
+	
+	/*
+	distribution("3.txt", 2);
+	merger("4.txt", 2);
+	distribution("4.txt", 2);
+	merger("4.txt", 2);
+	*/
 	cout << endl << endl;
 }
